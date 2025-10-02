@@ -31,6 +31,22 @@ class WeatherRepository(
     fun getCities(): List<City> = _cities.toList()
 
     /**
+     * Add a city to the list
+     */
+    fun addCity(city: City) {
+        if (!_cities.contains(city)) {
+            _cities.add(city)
+        }
+    }
+
+    /**
+     * Remove a city from the list
+     */
+    fun removeCity(city: City) {
+        _cities.remove(city)
+    }
+
+    /**
      * Fetch weather for all cities concurrently
      */
     suspend fun getAllCitiesWeather(): Result<List<CityWeather>> = withContext(Dispatchers.IO) {

@@ -4,10 +4,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +40,8 @@ fun WeatherListScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
+    var showAddCityDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,6 +52,17 @@ fun WeatherListScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddCityDialog = true },
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add city"
+                )
+            }
         }
     ) { paddingValues ->
         Box(
@@ -76,6 +94,15 @@ fun WeatherListScreen(
         }
     }
 
+    if (showAddCityDialog) {
+        AddCityDialog(
+            onDismiss = { showAddCityDialog = false },
+            onConfirm = { cityName, state ->
+                viewModel.addCity(cityName, state)
+                showAddCityDialog = false
+            }
+        )
+    }
 }
 
 /**
