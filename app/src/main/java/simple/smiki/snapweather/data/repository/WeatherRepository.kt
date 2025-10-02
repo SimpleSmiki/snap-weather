@@ -107,9 +107,25 @@ class WeatherRepository(
             weatherDescription = condition?.description ?: "Unknown",
             weatherIconUrl = WeatherApiService.getIconUrl(condition?.icon ?: "01d"),
             humidity = response.main.humidity,
-            chanceOfPrecipitation = 0, // todo: Calculate based on conditions
+            chanceOfPrecipitation = calculatePrecipitationChance(condition?.description ?: ""),
             temperatureUnit = "°F"
         )
     }
 
+    /**
+     * Estimates precipitation chance based on weather condition
+     */
+    private fun calculatePrecipitationChance(condition: String): Int {
+        return when (condition.lowercase()) {
+            "thunderstorm", "rain" -> 90
+            "overcast clouds" -> 85
+            "snow" -> 75
+            "drizzle" -> 60
+            "broken clouds" -> 51
+            "scattered clouds" -> 25
+            "mist", "fog" -> 20
+            "few clouds" -> 15
+            else -> 0
+        }
+    }
 }
