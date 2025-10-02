@@ -87,6 +87,7 @@ fun WeatherListScreen(
                 is WeatherListUiState.Error -> {
                     ErrorContent(
                         message = state.message,
+                        onRetry = { viewModel.loadWeather() },
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -194,6 +195,7 @@ private fun WeatherListItem(
 @Composable
 private fun ErrorContent(
     message: String,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -211,6 +213,9 @@ private fun ErrorContent(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Button(onClick = onRetry) {
+            Text("Retry")
+        }
     }
 }
 
@@ -235,7 +240,8 @@ fun WeatherListItemPreview() {
 fun ErrorPreview() {
     SnapWeatherTheme {
         ErrorContent(
-            message = "Failed to load data. Please try again."
+            message = "Failed to load data. Please try again.",
+            onRetry = {}
         )
     }
 }
