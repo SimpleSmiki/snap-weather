@@ -81,6 +81,29 @@ class WeatherListViewModel(
         }
     }
 
+    /**
+     * Remove a city from the list
+     */
+    fun removeCity(cityWeather: CityWeather) {
+        viewModelScope.launch {
+            val parts = cityWeather.cityName.split(", ")
+            if (parts.size == 2) {
+                val city = City(
+                    name = parts[0],
+                    state = parts[1]
+                )
+                repository.removeCity(city)
+
+                cachedWeatherData = cachedWeatherData.minus(cityWeather)
+
+                if (cachedWeatherData.isEmpty()) {
+                    _uiState.value = WeatherListUiState.Error("No cities in your list. Add some cities to see weather data.")
+                } else {
+                    _uiState.value = WeatherListUiState.Success(cachedWeatherData)
+                }
+            }
+        }
+    }
 }
 
 /**

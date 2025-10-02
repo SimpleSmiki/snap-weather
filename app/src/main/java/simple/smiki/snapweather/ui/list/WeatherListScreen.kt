@@ -1,13 +1,17 @@
 package simple.smiki.snapweather.ui.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +46,7 @@ fun WeatherListScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     var showAddCityDialog by remember { mutableStateOf(false) }
+    var cityToDelete by remember { mutableStateOf<CityWeather?>(null) }
 
     Scaffold(
         topBar = {
@@ -80,7 +86,8 @@ fun WeatherListScreen(
                 is WeatherListUiState.Success -> {
                     WeatherList(
                         cities = state.cities,
-                        onCityClick = onCityClick
+                        onCityClick = onCityClick,
+                        onCityDelete = { cityToDelete = it }
                     )
                 }
 
@@ -104,6 +111,17 @@ fun WeatherListScreen(
             }
         )
     }
+
+    cityToDelete?.let { city ->
+        DeleteCityDialog(
+            cityName = city.cityName,
+            onDismiss = { cityToDelete = null },
+            onConfirm = {
+                viewModel.removeCity(city)
+                cityToDelete = null
+            }
+        )
+    }
 }
 
 /**
@@ -113,6 +131,7 @@ fun WeatherListScreen(
 private fun WeatherList(
     cities: List<CityWeather>,
     onCityClick: (CityWeather) -> Unit,
+    onCityDelete: (CityWeather) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -125,10 +144,44 @@ private fun WeatherList(
             key = { it.cityName }
         ) { cityWeather ->
 
-            WeatherListItem(
-                cityWeather = cityWeather,
-                onClick = { onCityClick(cityWeather) }
+            val dismissState = rememberSwipeToDismissBoxState(
+                initialValue = SwipeToDismissBoxValue.Settled,
+                positionalThreshold = { distance -> distance * 0.5f }
             )
+
+            LaunchedEffect(dismissState.currentValue) {
+                if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                    onCityDelete(cityWeather)
+                    dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                }
+            }
+
+            SwipeToDismissBox(
+                state = dismissState,
+                backgroundContent = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.errorContainer)
+                            .padding(horizontal = 20.dp),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                },
+                enableDismissFromStartToEnd = false,
+                enableDismissFromEndToStart = true
+            ) {
+                WeatherListItem(
+                    cityWeather = cityWeather,
+                    onClick = { onCityClick(cityWeather) }
+                )
+            }
         }
     }
 }
