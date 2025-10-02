@@ -97,7 +97,7 @@ class WeatherListViewModel(
                 cachedWeatherData = cachedWeatherData.minus(cityWeather)
 
                 if (cachedWeatherData.isEmpty()) {
-                    _uiState.value = WeatherListUiState.Error("No cities in your list. Add some cities to see weather data.")
+                    _uiState.value = WeatherListUiState.Empty
                 } else {
                     _uiState.value = WeatherListUiState.Success(cachedWeatherData)
                 }
@@ -114,6 +114,11 @@ sealed class WeatherListUiState {
      * Initial state when data is being fetched
      */
     object Loading : WeatherListUiState()
+
+    /**
+     * State when all cities were removed and the list is empty
+     */
+    object Empty : WeatherListUiState()
 
     /**
      * State when data has been successfully loaded

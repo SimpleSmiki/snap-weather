@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -79,6 +80,11 @@ fun WeatherListScreen(
             when (val state = uiState) {
                 is WeatherListUiState.Loading -> {
                     CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                is WeatherListUiState.Empty -> {
+                    NoContent(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -270,6 +276,22 @@ private fun ErrorContent(
             Text("Retry")
         }
     }
+}
+
+/**
+ * State UI without cities added
+ */
+@Composable
+private fun NoContent(
+    modifier: Modifier = Modifier
+) {
+    Text(
+        modifier = modifier.padding(16.dp),
+        text = "Please add cities to see weather data.",
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.primary,
+    )
 }
 
 @Preview(showBackground = true, widthDp =  360)
