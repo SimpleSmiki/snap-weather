@@ -45,13 +45,13 @@ data class WeatherCondition(
     val id: Int,
 
     @SerializedName("main")
-    val main: String, // e.g., "Rain", "Clear"
+    val main: String,
 
     @SerializedName("description")
-    val description: String, // e.g., "light rain"
+    val description: String,
 
     @SerializedName("icon")
-    val icon: String // e.g., "10d"
+    val icon: String
 )
 
 
