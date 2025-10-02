@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import simple.smiki.snapweather.data.model.City
 import simple.smiki.snapweather.data.model.CityWeather
+import simple.smiki.snapweather.data.preferences.TemperaturePreferences
+import simple.smiki.snapweather.data.preferences.TemperaturePreferences.TemperatureUnit
 import simple.smiki.snapweather.data.repository.WeatherRepository
 import kotlin.collections.plus
 
@@ -16,11 +18,15 @@ import kotlin.collections.plus
  */
 
 class WeatherListViewModel(
-    private val repository: WeatherRepository
+    private val repository: WeatherRepository,
+    private val temperaturePreferences: TemperaturePreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WeatherListUiState>(WeatherListUiState.Loading)
     val uiState: StateFlow<WeatherListUiState> = _uiState.asStateFlow()
+
+    private val _currentUnit = MutableStateFlow(temperaturePreferences.getTemperatureUnit())
+    val currentUnit: StateFlow<TemperatureUnit> = _currentUnit.asStateFlow()
 
     private var cachedWeatherData: List<CityWeather> = emptyList()
 
@@ -50,6 +56,29 @@ class WeatherListViewModel(
                     result.exceptionOrNull()?.message ?: "Unknown error occurred"
                 )
             }
+        }
+    }
+
+    fun toggleTemperatureUnit() {
+        viewModelScope.launch {
+            _currentUnit.value = temperaturePreferences.toggleTemperatureUnit()
+            cachedWeatherData = cachedWeatherData.map {
+                when (_currentUnit.value) {
+                    TemperatureUnit.FAHRENHEIT -> it.copy(
+                        temperature = celsiusToFahrenheit(it.temperature.toDouble()).toInt(),
+                        tempHigh = celsiusToFahrenheit(it.tempHigh.toDouble()).toInt(),
+                        tempLow = celsiusToFahrenheit(it.tempLow.toDouble()).toInt(),
+                        temperatureUnit = TemperatureUnit.FAHRENHEIT.symbol
+                    )
+                    TemperatureUnit.CELSIUS -> it.copy(
+                        temperature = fahrenheitToCelsius(it.temperature.toDouble()).toInt(),
+                        tempHigh = fahrenheitToCelsius(it.tempHigh.toDouble()).toInt(),
+                        tempLow = fahrenheitToCelsius(it.tempLow.toDouble()).toInt(),
+                        temperatureUnit = TemperatureUnit.CELSIUS.symbol
+                    )
+                }
+            }
+            _uiState.value = WeatherListUiState.Success(cachedWeatherData)
         }
     }
 
@@ -104,6 +133,15 @@ class WeatherListViewModel(
             }
         }
     }
+
+    fun fahrenheitToCelsius(fahrenheitTemp: Double): Double {
+        return (fahrenheitTemp - 32) * 5 / 9
+    }
+
+    fun celsiusToFahrenheit(celsius: Double): Double {
+        return (celsius * 9 / 5) + 32
+    }
+
 }
 
 /**

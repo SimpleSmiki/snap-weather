@@ -93,11 +93,13 @@ private fun WeatherMainInfo(cityWeather: CityWeather) {
         ) {
             TemperatureLabel(
                 label = "High",
-                temperature = cityWeather.tempHigh
+                temperature = cityWeather.tempHigh,
+                temperatureUnit = cityWeather.temperatureUnit
             )
             TemperatureLabel(
                 label = "Low",
-                temperature = cityWeather.tempLow
+                temperature = cityWeather.tempLow,
+                temperatureUnit = cityWeather.temperatureUnit
             )
         }
     }
@@ -107,7 +109,7 @@ private fun WeatherMainInfo(cityWeather: CityWeather) {
  * Small temperature display with label (used for High/Low)
  */
 @Composable
-private fun TemperatureLabel(label: String, temperature: Int) {
+private fun TemperatureLabel(label: String, temperature: Int, temperatureUnit: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = label,
@@ -115,7 +117,7 @@ private fun TemperatureLabel(label: String, temperature: Int) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "${temperature}°F",
+            text = "${temperature}${temperatureUnit}",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold
         )
@@ -207,7 +209,8 @@ fun TemperatureLabelPreview() {
     SnapWeatherTheme {
         TemperatureLabel(
             label = "High",
-            temperature = 75
+            temperature = 75,
+            temperatureUnit = "°F"
         )
     }
 }

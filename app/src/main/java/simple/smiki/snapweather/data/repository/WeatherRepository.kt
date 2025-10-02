@@ -1,5 +1,6 @@
 package simple.smiki.snapweather.data.repository
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -9,12 +10,14 @@ import simple.smiki.snapweather.data.api.WeatherApiService
 import simple.smiki.snapweather.data.model.City
 import simple.smiki.snapweather.data.model.CityWeather
 import simple.smiki.snapweather.data.model.WeatherResponse
+import simple.smiki.snapweather.data.preferences.TemperaturePreferences
 
 /**
  * Repository that manages weather data and city list
  */
 class WeatherRepository(
-    private val apiService: WeatherApiService
+    private val apiService: WeatherApiService,
+    private val temperaturePreferences: TemperaturePreferences
 ) {
 
     private val apiKey = "da65fafb6cb9242168b7724fb5ab75e7"
@@ -24,11 +27,6 @@ class WeatherRepository(
         City("New York", "NY"),
         City("Salt Lake City", "UT")
     )
-    
-    /**
-     * Get the current list of cities
-     */
-    fun getCities(): List<City> = _cities.toList()
 
     /**
      * Add a city to the list
@@ -58,15 +56,16 @@ class WeatherRepository(
                         try {
                             val response = apiService.getCurrentWeather(
                                 cityQuery = city.toApiFormat(),
-                                apiKey = apiKey
+                                apiKey = apiKey,
+                                units = temperaturePreferences.getTemperatureUnit().apiValue
                             )
                             mapResponseToCityWeather(response, city)
                         } catch (e: Exception) {
-                            // Log error but don't fail the entire batch
+                            Log.e("WeatherRepository", "Error fetching weather for ${city.name}", e)
                             null
                         }
                     }
-                }.awaitAll().filterNotNull() // Remove any failed requests
+                }.awaitAll().filterNotNull()
             }
             
             Result.success(weatherData)
@@ -82,7 +81,8 @@ class WeatherRepository(
         try {
             val response = apiService.getCurrentWeather(
                 cityQuery = city.toApiFormat(),
-                apiKey = apiKey
+                apiKey = apiKey,
+                units = temperaturePreferences.getTemperatureUnit().apiValue
             )
             Result.success(mapResponseToCityWeather(response, city))
         } catch (e: Exception) {
@@ -108,7 +108,7 @@ class WeatherRepository(
             weatherIconUrl = WeatherApiService.getIconUrl(condition?.icon ?: "01d"),
             humidity = response.main.humidity,
             chanceOfPrecipitation = calculatePrecipitationChance(condition?.description ?: ""),
-            temperatureUnit = "°F"
+            temperatureUnit = temperaturePreferences.getTemperatureUnit().symbol
         )
     }
 

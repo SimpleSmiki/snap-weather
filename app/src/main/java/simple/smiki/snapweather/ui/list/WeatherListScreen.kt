@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,12 +40,14 @@ fun WeatherListScreen(
     onCityClick: (CityWeather) -> Unit,
     viewModel: WeatherListViewModel = viewModel(
         factory = WeatherListViewModelFactory(
-            AppDependencies.weatherRepository
+            AppDependencies.weatherRepository,
+            AppDependencies.temperaturePreferences
         )
     )
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
+    val currentUnit by viewModel.currentUnit.collectAsState()
 
     var showAddCityDialog by remember { mutableStateOf(false) }
     var cityToDelete by remember { mutableStateOf<CityWeather?>(null) }
@@ -53,6 +56,22 @@ fun WeatherListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Weather") },
+                actions = {
+                    TextButton(
+                        onClick = { viewModel.toggleTemperatureUnit() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Toggle unit",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = currentUnit.symbol,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
