@@ -1,0 +1,99 @@
+package simple.smiki.snapweather.data.repository
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import simple.smiki.snapweather.data.api.WeatherApiService
+import simple.smiki.snapweather.data.model.City
+import simple.smiki.snapweather.data.model.CityWeather
+import simple.smiki.snapweather.data.model.WeatherResponse
+
+/**
+ * Repository that manages weather data and city list
+ */
+class WeatherRepository(
+    private val apiService: WeatherApiService
+) {
+
+    private val apiKey = "da65fafb6cb9242168b7724fb5ab75e7"
+
+    private val _cities = mutableListOf(
+        City("San Francisco", "CA"),
+        City("New York", "NY"),
+        City("Salt Lake City", "UT")
+    )
+    
+    /**
+     * Get the current list of cities
+     */
+    fun getCities(): List<City> = _cities.toList()
+
+    /**
+     * Fetch weather for all cities concurrently
+     */
+    suspend fun getAllCitiesWeather(): Result<List<CityWeather>> = withContext(Dispatchers.IO) {
+        try {
+
+            val weatherData = coroutineScope {
+                _cities.map { city ->
+                    async {
+                        try {
+                            val response = apiService.getCurrentWeather(
+                                cityQuery = city.toApiFormat(),
+                                apiKey = apiKey
+                            )
+                            mapResponseToCityWeather(response, city)
+                        } catch (e: Exception) {
+                            // Log error but don't fail the entire batch
+                            null
+                        }
+                    }
+                }.awaitAll().filterNotNull() // Remove any failed requests
+            }
+            
+            Result.success(weatherData)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Fetch weather for a single city
+     */
+    suspend fun getCityWeather(city: City): Result<CityWeather> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getCurrentWeather(
+                cityQuery = city.toApiFormat(),
+                apiKey = apiKey
+            )
+            Result.success(mapResponseToCityWeather(response, city))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Maps the API response to our domain model
+     */
+    private fun mapResponseToCityWeather(
+        response: WeatherResponse,
+        city: City
+    ): CityWeather {
+        val condition = response.weather.firstOrNull()
+
+        return CityWeather(
+            cityName = city.toDisplayFormat(),
+            temperature = response.main.temperature.toInt(),
+            tempHigh = response.main.tempMax.toInt(),
+            tempLow = response.main.tempMin.toInt(),
+            weatherDescription = condition?.description ?: "Unknown",
+            weatherIconUrl = WeatherApiService.getIconUrl(condition?.icon ?: "01d"),
+            humidity = response.main.humidity,
+            chanceOfPrecipitation = 0, // todo: Calculate based on conditions
+            temperatureUnit = "°F"
+        )
+    }
+
+}
