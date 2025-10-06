@@ -98,12 +98,13 @@ class WeatherRepository(
         city: City
     ): CityWeather {
         val condition = response.weather.firstOrNull()
+        val precipitationChance = calculatePrecipitationChance(condition?.main ?: "", response.main.humidity, response.clouds.all)
 
         return CityWeather(
             cityName = city.toDisplayFormat(),
-            temperature = response.main.temperature.toInt(),
-            tempHigh = response.main.tempMax.toInt(),
-            tempLow = response.main.tempMin.toInt(),
+            temperature = response.main.temperature,
+            tempHigh = response.main.tempMax,
+            tempLow = response.main.tempMin,
             weatherDescription = condition?.description ?: "Unknown",
             weatherIconUrl = WeatherApiService.getIconUrl(condition?.icon ?: "01d"),
             humidity = response.main.humidity,

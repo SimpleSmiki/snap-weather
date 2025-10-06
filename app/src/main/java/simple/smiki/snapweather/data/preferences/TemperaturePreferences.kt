@@ -30,7 +30,7 @@ class TemperaturePreferences(context: Context) {
         val unitName = prefs.getString(KEY_TEMPERATURE_UNIT, TemperatureUnit.FAHRENHEIT.name)
         return try {
             TemperatureUnit.valueOf(unitName ?: TemperatureUnit.FAHRENHEIT.name)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             TemperatureUnit.FAHRENHEIT
         }
     }

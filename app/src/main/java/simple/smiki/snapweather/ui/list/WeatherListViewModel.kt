@@ -65,15 +65,15 @@ class WeatherListViewModel(
             cachedWeatherData = cachedWeatherData.map {
                 when (_currentUnit.value) {
                     TemperatureUnit.FAHRENHEIT -> it.copy(
-                        temperature = celsiusToFahrenheit(it.temperature.toDouble()).toInt(),
-                        tempHigh = celsiusToFahrenheit(it.tempHigh.toDouble()).toInt(),
-                        tempLow = celsiusToFahrenheit(it.tempLow.toDouble()).toInt(),
+                        temperature = celsiusToFahrenheit(it.temperature),
+                        tempHigh = celsiusToFahrenheit(it.tempHigh),
+                        tempLow = celsiusToFahrenheit(it.tempLow),
                         temperatureUnit = TemperatureUnit.FAHRENHEIT.symbol
                     )
                     TemperatureUnit.CELSIUS -> it.copy(
-                        temperature = fahrenheitToCelsius(it.temperature.toDouble()).toInt(),
-                        tempHigh = fahrenheitToCelsius(it.tempHigh.toDouble()).toInt(),
-                        tempLow = fahrenheitToCelsius(it.tempLow.toDouble()).toInt(),
+                        temperature = fahrenheitToCelsius(it.temperature),
+                        tempHigh = fahrenheitToCelsius(it.tempHigh),
+                        tempLow = fahrenheitToCelsius(it.tempLow),
                         temperatureUnit = TemperatureUnit.CELSIUS.symbol
                     )
                 }

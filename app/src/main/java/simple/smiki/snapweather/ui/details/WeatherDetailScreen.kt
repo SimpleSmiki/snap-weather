@@ -82,7 +82,7 @@ private fun WeatherMainInfo(cityWeather: CityWeather) {
         )
 
         Text(
-            text = "${cityWeather.temperature}${cityWeather.temperatureUnit}",
+            text = "${cityWeather.temperature.toInt()}${cityWeather.temperatureUnit}",
             style = MaterialTheme.typography.displayLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -93,12 +93,12 @@ private fun WeatherMainInfo(cityWeather: CityWeather) {
         ) {
             TemperatureLabel(
                 label = "High",
-                temperature = cityWeather.tempHigh,
+                temperature = cityWeather.tempHigh.toInt(),
                 temperatureUnit = cityWeather.temperatureUnit
             )
             TemperatureLabel(
                 label = "Low",
-                temperature = cityWeather.tempLow,
+                temperature = cityWeather.tempLow.toInt(),
                 temperatureUnit = cityWeather.temperatureUnit
             )
         }
@@ -191,9 +191,9 @@ fun WeatherMainPreview() {
         WeatherMainInfo(
             cityWeather = CityWeather(
                 cityName = "San Francisco",
-                temperature = 68,
-                tempHigh = 72,
-                tempLow = 55,
+                temperature = 68.0,
+                tempHigh = 72.0,
+                tempLow = 55.0,
                 weatherDescription = "Partly Cloudy",
                 weatherIconUrl = "",
                 humidity = 60,
@@ -222,9 +222,9 @@ fun WeatherDetailsGridPreview() {
         WeatherDetailsGrid(
             cityWeather = CityWeather(
                 cityName = "San Francisco",
-                temperature = 68,
-                tempHigh = 72,
-                tempLow = 55,
+                temperature = 68.4,
+                tempHigh = 72.6,
+                tempLow = 55.3,
                 weatherDescription = "Partly Cloudy",
                 weatherIconUrl = "",
                 humidity = 60,

@@ -5,9 +5,9 @@ package simple.smiki.snapweather.data.model
  */
 data class CityWeather(
     val cityName: String,
-    val temperature: Int,
-    val tempHigh: Int,
-    val tempLow: Int,
+    val temperature: Double,
+    val tempHigh: Double,
+    val tempLow: Double,
     val weatherDescription: String,
     val weatherIconUrl: String,
     val humidity: Int,

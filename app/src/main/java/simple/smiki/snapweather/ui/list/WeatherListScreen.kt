@@ -258,7 +258,7 @@ private fun WeatherListItem(
             }
 
             Text(
-                text = "${cityWeather.temperature}${cityWeather.temperatureUnit}",
+                text = "${cityWeather.temperature.toInt()}${cityWeather.temperatureUnit}",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -319,9 +319,9 @@ fun WeatherListItemPreview() {
     WeatherListItem(
         cityWeather = CityWeather(
             cityName = "San Francisco",
-            temperature = 68,
-            tempHigh = 70,
-            tempLow = 55,
+            temperature = 68.0,
+            tempHigh = 70.5,
+            tempLow = 55.3,
             weatherDescription = "Sunny",
             weatherIconUrl = "",
             humidity = 20
