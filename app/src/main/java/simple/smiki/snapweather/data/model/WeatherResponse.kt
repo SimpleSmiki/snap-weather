@@ -15,6 +15,9 @@ data class WeatherResponse(
     @SerializedName("weather")
     val weather: List<WeatherCondition>,
 
+    @SerializedName("clouds")
+    val clouds: Clouds
+
 )
 
 /**
@@ -54,5 +57,12 @@ data class WeatherCondition(
     val icon: String
 )
 
+/**
+ * Cloud coverage data
+ */
+data class Clouds(
+    @SerializedName("all")
+    val all: Int,
+)
 
 

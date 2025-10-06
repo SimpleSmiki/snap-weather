@@ -108,25 +108,38 @@ class WeatherRepository(
             weatherDescription = condition?.description ?: "Unknown",
             weatherIconUrl = WeatherApiService.getIconUrl(condition?.icon ?: "01d"),
             humidity = response.main.humidity,
-            chanceOfPrecipitation = calculatePrecipitationChance(condition?.description ?: ""),
+            chanceOfPrecipitation = mapPrecipitationChance(precipitationChance),
             temperatureUnit = temperaturePreferences.getTemperatureUnit().symbol
         )
     }
 
     /**
-     * Estimates precipitation chance based on weather condition
+     * Estimates precipitation chance based on weather condition, humidity and cloud coverage
      */
-    private fun calculatePrecipitationChance(condition: String): Int {
-        return when (condition.lowercase()) {
-            "thunderstorm", "rain" -> 90
-            "overcast clouds" -> 85
-            "snow" -> 75
-            "drizzle" -> 60
-            "broken clouds" -> 51
-            "scattered clouds" -> 25
-            "mist", "fog" -> 20
-            "few clouds" -> 15
-            else -> 0
+    private fun calculatePrecipitationChance(condition: String, humidity: Int, clouds: Int): Int {
+        var pop = (0.3 * clouds + 0.5 * humidity).toInt()
+
+        if (
+            condition.contains("rain", ignoreCase = true) ||
+            condition.contains("snow", ignoreCase = true) ||
+            condition.contains("thunderstorm", ignoreCase = true)
+        ) pop += 20
+        if (condition.contains("drizzle", ignoreCase = true)) pop += 10
+        if (condition.contains("clear", ignoreCase = true)) pop -= 20
+
+        return pop
+    }
+
+    /**
+     * Maps precipitation chance to a user-friendly string
+     */
+    private fun mapPrecipitationChance(precipitationChance: Int): String {
+        return when {
+            precipitationChance < 20 -> "Very Low"
+            precipitationChance < 40 -> "Low"
+            precipitationChance < 60 -> "Medium"
+            precipitationChance < 80 -> "High"
+            else -> "Very High"
         }
     }
 }

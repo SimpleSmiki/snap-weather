@@ -141,7 +141,7 @@ private fun WeatherDetailsGrid(cityWeather: CityWeather) {
 
         DetailItem(
             label = "Chance of Precipitation",
-            value = "${cityWeather.chanceOfPrecipitation}%"
+            value = cityWeather.chanceOfPrecipitation
         )
 
         DetailItem(
@@ -197,7 +197,7 @@ fun WeatherMainPreview() {
                 weatherDescription = "Partly Cloudy",
                 weatherIconUrl = "",
                 humidity = 60,
-                chanceOfPrecipitation = 20
+                chanceOfPrecipitation = "Low"
             )
         )
     }
@@ -228,7 +228,7 @@ fun WeatherDetailsGridPreview() {
                 weatherDescription = "Partly Cloudy",
                 weatherIconUrl = "",
                 humidity = 60,
-                chanceOfPrecipitation = 20
+                chanceOfPrecipitation = "Low"
             )
         )
     }

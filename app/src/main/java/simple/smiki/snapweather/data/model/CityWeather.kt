@@ -11,6 +11,6 @@ data class CityWeather(
     val weatherDescription: String,
     val weatherIconUrl: String,
     val humidity: Int,
-    val chanceOfPrecipitation: Int = 0,
+    val chanceOfPrecipitation: String = "",
     val temperatureUnit: String = "°F"
 )
