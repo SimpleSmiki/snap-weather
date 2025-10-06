@@ -29,6 +29,11 @@ class WeatherRepository(
     )
 
     /**
+     * Get the current list of cities
+     */
+    fun getCities(): List<City> = _cities.toList()
+
+    /**
      * Add a city to the list
      */
     fun addCity(city: City) {
