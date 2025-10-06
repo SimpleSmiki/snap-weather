@@ -28,6 +28,9 @@ class WeatherListViewModel(
     private val _currentUnit = MutableStateFlow(temperaturePreferences.getTemperatureUnit())
     val currentUnit: StateFlow<TemperatureUnit> = _currentUnit.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
     private var cachedWeatherData: List<CityWeather> = emptyList()
 
     init {
@@ -39,9 +42,12 @@ class WeatherListViewModel(
      */
     fun loadWeather() {
         _uiState.value = WeatherListUiState.Loading
+        _isRefreshing.value = true
 
         viewModelScope.launch {
             val result = repository.getAllCitiesWeather()
+
+            _isRefreshing.value = false
 
             _uiState.value = if (result.isSuccess) {
                 val weatherList = result.getOrNull() ?: emptyList()

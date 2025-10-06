@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,6 +49,7 @@ fun WeatherListScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val currentUnit by viewModel.currentUnit.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     var showAddCityDialog by remember { mutableStateOf(false) }
     var cityToDelete by remember { mutableStateOf<CityWeather?>(null) }
@@ -109,11 +111,17 @@ fun WeatherListScreen(
                 }
 
                 is WeatherListUiState.Success -> {
-                    WeatherList(
-                        cities = state.cities,
-                        onCityClick = onCityClick,
-                        onCityDelete = { cityToDelete = it }
-                    )
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = { viewModel.loadWeather() },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        WeatherList(
+                            cities = state.cities,
+                            onCityClick = onCityClick,
+                            onCityDelete = { cityToDelete = it }
+                        )
+                    }
                 }
 
                 is WeatherListUiState.Error -> {
@@ -325,7 +333,8 @@ fun WeatherListItemPreview() {
             weatherDescription = "Sunny",
             weatherIconUrl = "",
             humidity = 20
-    ), onClick = {}
+        ),
+        onClick = {}
     )
 }
 
